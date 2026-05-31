@@ -98,3 +98,102 @@ PainelDesenho.java: É a tela em branco. Dentro dele, o método paintComponent(G
 GerenciadorMouse.java: Intercepta os movimentos. No mousePressed, ele pega a cor e espessura selecionadas na interface, cria um NoTraco e joga na lista. No mouseDragged, ele fica criando NoPonto e grudando no traço atual. A cada movimento, ele dá um canvas.repaint().
 
 GerenciadorDesenho.java: Controla o estado global (qual cor está selecionada no momento? Qual a espessura?). Quando o botão "Desfazer" na JanelaPrincipal é clicado, este gerenciador avisa a ListaEncadeadaCustom para deletar o último traço e manda o painel se redesenhar.
+
+## Descrição de métodos
+
+#### 1. Classe NoPonto
+NoPonto(int x, int y) (Construtor): Recebe as coordenadas exatas de onde o mouse passou no plano cartesiano da tela e armazena nas variáveis x e y. Ele define o ponteiro proximo como null, indicando que, ao nascer, esse ponto ainda não está conectado a nenhum outro.
+
+#### 2. Classe NoTraco
+NoTraco(Color cor, int espessura) (Construtor): Cria um novo traço vazio. Ele define as propriedades estéticas daquela linha específica (cor e tamanho do pincel) e inicializa as referências dos pontos internos (cabecaPontos e caudaPontos) como null, além de preparar o ponteiro proximoTraco para quando um novo traço for feito depois dele.
+
+adicionarPonto(int x, int y): Este método é disparado continuamente enquanto o usuário arrasta o mouse.
+
+Se for o primeiro ponto do clique, ele define esse ponto como a cabeca e a cauda da lista interna.
+
+Se o usuário já estiver arrastando, ele usa o ponteiro caudaPontos para grudar o novo ponto diretamente no final da linha (complexidade O(1), ou seja, instantâneo), e atualiza a cauda para ser esse novo ponto.
+
+#### 3. Classe ListaEncadeadaCustom
+ListaEncadeadaCustom() (Construtor): Inicializa a estrutura do Canvas (tela) vazia, definindo o primeiro traço (cabecaTracos) como null.
+
+adicionarTraco(NoTraco novoTraco): Chamado no momento exato em que o usuário clica com o mouse na tela para iniciar um novo desenho. O método verifica se a tela está totalmente em branco; se estiver, o novoTraco vira a cabecaTracos. Caso contrário, ele faz uma varredura na lista através de um laço while até encontrar o último traço desenhado e conecta o novo traço logo após ele.
+
+removerUltimoTraco() (O método do Undo / Desfazer): É o método que apaga a última ação do usuário.
+
+Ele valida se há traços na tela. Se houver apenas um, ele limpa a cabecaTracos definindo-a como null.
+
+Se houver vários traços, ele percorre a lista até achar o penúltimo traço. Ao encontrá-lo, ele altera o ponteiro do penúltimo para null. O último traço perde a referência no sistema e o Garbage Collector do Java se encarrega de deletá-lo da memória RAM.
+
+limpar(): Zera a tela inteira instantaneamente. Ele simplesmente corta a referência da cabecaTracos mudando-a para null. Como a interface perde o rastro de onde a lista começava, todos os traços subsequentes são descartados da memória.
+
+#### 4.Classe PainelDesenho (O Canvas de Desenho)
+Esta classe estende um JPanel do Swing e funciona como a "tela em branco" do Paint. É ela quem lê a sua lista encadeada e transforma os nós em linhas visíveis.
+
+PainelDesenho(ListaEncadeadaCustom lista) (Seu Construtor): Recebe a referência da lista mestra de traços criada no núcleo do programa. Ele define que o fundo do painel será escuro (combinando com o Dark Mode) e inicializa as configurações básicas da área de desenho.
+
+paintComponent(Graphics g) (O Motor de Renderização): Este é o método mais importante do visor, chamado automaticamente pelo Java sempre que a tela precisa ser atualizada (via repaint()).
+
+Conversão para Graphics2D: Ele transforma o objeto Graphics nativo em Graphics2D para liberar recursos avançados de desenho.
+
+Suavização (Antialiasing): Configura filtros geométricos para eliminar o efeito serrilhado dos traços, deixando as linhas perfeitamente lisas.
+
+Acabamento Arredondado (BasicStroke): Define que as linhas terão pontas e junções arredondadas. Isso é essencial no desenho livre, pois impede que as curvas fiquem "quadradas" ou quebradas.
+
+O Laço de Varredura (Desenho dos Nós): Ele inicia um loop que começa na cabecaTracos. Para cada traço encontrado, ele muda a cor e a espessura do pincel do sistema e entra em um segundo loop interno, percorrendo a lista de pontos daquele traço e desenhando uma linha reta ligando o pontoAtual ao proximoPonto. Ele faz isso até que todos os traços e pontos sejam desenhados na tela.
+
+#### 5. Classe JanelaPrincipal (A Moldura do Aplicativo)
+Esta classe estende um JFrame e funciona como a janela principal do software. Ela organiza onde ficam os botões de controle e onde fica a área de desenho.
+
+JanelaPrincipal() (Seu Construtor): Define o título da janela, o tamanho padrão do programa na tela (ex: 1200x800 pixels) e o comportamento de fechar o processo ao clicar no "X". Ele também inicializa as instâncias da estrutura de dados e dos gerenciadores.
+
+inicializarComponentes(): Método responsável por montar e organizar o layout visual (geralmente usando um BorderLayout).
+
+Ele cria e posiciona a Barra de Ferramentas (Toolbar) no topo ou na lateral.
+
+Adiciona o painel de desenho (PainelDesenho) no centro da tela.
+
+criarBarraFerramentas(): Um método auxiliar que fabrica os botões e seletores da interface. Ele adiciona:
+
+Botões de cores (Paleta de Cores).
+
+Um Slider (controle deslizante) para o usuário escolher a espessura do pincel em tempo real.
+
+O botão de Desfazer (Undo) e o botão de Limpar Tela.
+
+Cada um desses botões recebe um ouvinte de clique (ActionListener) que avisa o sistema sobre qual ação executar.
+
+#### 6.Classe PainelDesenho (O Canvas de Desenho)
+Esta classe estende um JPanel do Swing e funciona como a "tela em branco" do Paint. É ela quem lê a sua lista encadeada e transforma os nós em linhas visíveis.
+
+PainelDesenho(ListaEncadeadaCustom lista) (Seu Construtor): Recebe a referência da lista mestra de traços criada no núcleo do programa. Ele define que o fundo do painel será escuro (combinando com o Dark Mode) e inicializa as configurações básicas da área de desenho.
+
+paintComponent(Graphics g) (O Motor de Renderização): Este é o método mais importante do visor, chamado automaticamente pelo Java sempre que a tela precisa ser atualizada (via repaint()).
+
+Conversão para Graphics2D: Ele transforma o objeto Graphics nativo em Graphics2D para liberar recursos avançados de desenho.
+
+Suavização (Antialiasing): Configura filtros geométricos para eliminar o efeito serrilhado dos traços, deixando as linhas perfeitamente lisas.
+
+Acabamento Arredondado (BasicStroke): Define que as linhas terão pontas e junções arredondadas. Isso é essencial no desenho livre, pois impede que as curvas fiquem "quadradas" ou quebradas.
+
+O Laço de Varredura (Desenho dos Nós): Ele inicia um loop que começa na cabecaTracos. Para cada traço encontrado, ele muda a cor e a espessura do pincel do sistema e entra em um segundo loop interno, percorrendo a lista de pontos daquele traço e desenhando uma linha reta ligando o pontoAtual ao proximoPonto. Ele faz isso até que todos os traços e pontos sejam desenhados na tela.
+
+#### 7. Classe JanelaPrincipal (A Moldura do Aplicativo)
+Esta classe estende um JFrame e funciona como a janela principal do software. Ela organiza onde ficam os botões de controle e onde fica a área de desenho.
+
+JanelaPrincipal() (Seu Construtor): Define o título da janela, o tamanho padrão do programa na tela (ex: 1200x800 pixels) e o comportamento de fechar o processo ao clicar no "X". Ele também inicializa as instâncias da estrutura de dados e dos gerenciadores.
+
+inicializarComponentes(): Método responsável por montar e organizar o layout visual (geralmente usando um BorderLayout).
+
+Ele cria e posiciona a Barra de Ferramentas (Toolbar) no topo ou na lateral.
+
+Adiciona o painel de desenho (PainelDesenho) no centro da tela.
+
+criarBarraFerramentas(): Um método auxiliar que fabrica os botões e seletores da interface. Ele adiciona:
+
+Botões de cores (Paleta de Cores).
+
+Um Slider (controle deslizante) para o usuário escolher a espessura do pincel em tempo real.
+
+O botão de Desfazer (Undo) e o botão de Limpar Tela.
+
+Cada um desses botões recebe um ouvinte de clique (ActionListener) que avisa o sistema sobre qual ação executar.
