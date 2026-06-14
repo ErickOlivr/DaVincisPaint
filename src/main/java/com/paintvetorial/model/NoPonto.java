@@ -1,8 +1,8 @@
 package com.paintvetorial.model;
 
 public class NoPonto {
-    int x, y;
-    NoPonto proximo;
+    public int x, y;
+    public NoPonto proximo;
     
     public NoPonto(int x, int y){
         this.x = x;

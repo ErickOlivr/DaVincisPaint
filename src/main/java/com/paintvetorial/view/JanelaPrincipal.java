@@ -1,4 +1,8 @@
 package com.paintvetorial.view;
+import com.paintvetorial.controller.GerenciadorDesenho;
+import com.paintvetorial.controller.GerenciadorMouse;
+import com.paintvetorial.model.ListaEncadeadaCustom;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,6 +15,11 @@ public class JanelaPrincipal extends JFrame{
     private JButton desfazer, limpar, cor;
     private JSlider espessuraPincel;
 
+    private ListaEncadeadaCustom listaTracos;
+    private PainelDesenho painelDesenho;
+    private GerenciadorDesenho gerenciadorDesenho;
+    private GerenciadorMouse gerenciadorMouse;
+
     public JanelaPrincipal(){
 
         setTitle("Da Vincis Paint");
@@ -19,12 +28,23 @@ public class JanelaPrincipal extends JFrame{
         setLocationRelativeTo(null);
         
         setLayout(new BorderLayout());      //configura o layout principal
+
+        this.listaTracos = new ListaEncadeadaCustom();
+        this.painelDesenho = new PainelDesenho(listaTracos);
+
+        this.gerenciadorDesenho = new GerenciadorDesenho(listaTracos, painelDesenho);
+        this.gerenciadorMouse = new GerenciadorMouse(listaTracos, painelDesenho, gerenciadorDesenho);
+
+        painelDesenho.addMouseListener(gerenciadorMouse);
+        painelDesenho.addMouseMotionListener(gerenciadorMouse);
         
         barraFerramentasSuperior();    //cria a barra de ferramentas superior
         barraStatusInferior();     //cria a barra de status inferior
         areaCentral();      //cria a área onde terão os desenhos
         
         configurarAtalhos();    //configura atalhos de teclado
+
+        gerenciadorDesenho.setCorAtual(Color.WHITE);
     }
 
     private void barraFerramentasSuperior(){
@@ -37,6 +57,7 @@ public class JanelaPrincipal extends JFrame{
         desfazer = new JButton("↩️ Desfazer");
         desfazer.setToolTipText("Desfazer último traço (Ctrl+Z)");
         desfazer.addActionListener(e -> {
+            gerenciadorDesenho.acionarDesfazer();
             labelStatus.setText("✅ Desfazer executado (simulação)");
             System.out.println("[SIMULAÇÃO] Desfazer: removendo último traço");
         });
@@ -45,6 +66,7 @@ public class JanelaPrincipal extends JFrame{
         limpar = new JButton("🗑️ Limpar Tudo");
         limpar.setToolTipText("Remove todos os traços da tela");
         limpar.addActionListener(e -> {
+            gerenciadorDesenho.acionarLimpar();
             labelStatus.setText("✅ Tela limpa (simulação)");
             System.out.println("[SIMULAÇÃO] Limpar tela: removendo todos os traços");
         });
@@ -68,6 +90,7 @@ public class JanelaPrincipal extends JFrame{
             JSlider source = (JSlider) e.getSource();
             if (!source.getValueIsAdjusting()) {
                 int espessura = source.getValue();
+                gerenciadorDesenho.setEspessuraAtual(espessura);
                 labelStatus.setText("✏️ Espessura alterada para: " + espessura + "px");
                 System.out.println("[SIMULAÇÃO] Espessura atual: " + espessura);
             }
@@ -86,6 +109,7 @@ public class JanelaPrincipal extends JFrame{
                                                      labelCorPreview.getBackground());
             if (novaCor != null) {
                 labelCorPreview.setBackground(novaCor);
+                gerenciadorDesenho.setCorAtual(novaCor);
                 labelStatus.setText("🎨 Cor alterada para: RGB(" + novaCor.getRed() + 
                                    ", " + novaCor.getGreen() + ", " + novaCor.getBlue() + ")");
                 System.out.println("[SIMULAÇÃO] Nova cor selecionada: " + novaCor);
@@ -148,14 +172,14 @@ public class JanelaPrincipal extends JFrame{
 
     private void areaCentral(){
         
-        //ESSA PARTE ENTRA EM "MOTOR GRÁFICO"
+        add(painelDesenho, BorderLayout.CENTER);
     }
 
-    private void configurarAtalhos(){
+    private void configurarAtalhos() {
 
         // Ctrl+Z para desfazer
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-            .put(KeyStroke.getKeyStroke("ctrl Z"), "undo");
+                .put(KeyStroke.getKeyStroke("ctrl Z"), "undo");
         getRootPane().getActionMap().put("undo", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {

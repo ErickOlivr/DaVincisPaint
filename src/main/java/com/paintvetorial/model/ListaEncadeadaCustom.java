@@ -2,8 +2,8 @@ package com.paintvetorial.model;
 import java.awt.Color;
 
 public class ListaEncadeadaCustom {
-    NoTraco inicio;
-    NoTraco fim;
+    public NoTraco inicio;
+    public NoTraco fim;
     
     public ListaEncadeadaCustom (){
     this.inicio = null;

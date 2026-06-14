@@ -2,19 +2,11 @@ package com.paintvetorial.model;
 import java.awt.Color;
 
 public class NoTraco {
-    Color cor;
-    int espessura;
-    NoPonto noCabeca;
-    NoTraco proximoTraco;
-    NoTraco tracoAnterior;
-
-public NoTraco (Color cor, int espessura){
-    this.cor = cor;
-    this.espessura = espessura;
-    this.noCabeca = null;
-    this.proximoTraco = null;
-    this.tracoAnterior = null;
-}
+    public Color cor;
+    public int espessura;
+    public NoPonto noCabeca;
+    public NoTraco proximoTraco;
+    public NoTraco tracoAnterior;
 
     public NoTraco (Color cor, int espessura){
         this.cor = cor;
