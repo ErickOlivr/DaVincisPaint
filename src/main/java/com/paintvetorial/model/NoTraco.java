@@ -8,6 +8,13 @@ public class NoTraco {
     NoTraco proximoTraco;
     NoTraco tracoAnterior;
 
+public NoTraco (Color cor, int espessura){
+    this.cor = cor;
+    this.espessura = espessura;
+    this.noCabeca = null;
+    this.proximoTraco = null;
+    this.tracoAnterior = null;
+}
 
     public NoTraco (Color cor, int espessura){
         this.cor = cor;
