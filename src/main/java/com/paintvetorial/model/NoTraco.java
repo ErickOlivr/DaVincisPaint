@@ -7,11 +7,10 @@ public class NoTraco {
     NoPonto noCabeca;
     NoTraco proximoTraco;
     NoTraco tracoAnterior;
-}
 
-public NoTraco (Color cor, int espressura){
+public NoTraco (Color cor, int espessura){
     this.cor = cor;
-    this.espressura = espressura;
+    this.espessura = espessura;
     this.noCabeca = null;
     this.proximoTraco = null;
     this.tracoAnterior = null;
