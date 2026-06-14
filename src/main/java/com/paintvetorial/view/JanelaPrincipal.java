@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.border.EmptyBorder;
 
+
 public class JanelaPrincipal extends JFrame{
 
     private JLabel labelStatus, labelCorPreview;
